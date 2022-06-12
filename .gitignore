@@ -1,0 +1,29 @@
+# IDE config
+/.idea
+/.vscode
+
+
+/public/hot
+/public/storage
+/public/*
+!/public/.htaccess
+!/public/index.php
+!/public/favicon.ico
+!/public/robots.txt
+
+# Envs, modules, cache
+/storage/*.key
+/node_modules
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+
+Homestead.json
+Homestead.yaml
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+
