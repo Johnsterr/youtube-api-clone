@@ -1,0 +1,11 @@
+import React from "react";
+
+function ExampleComponent() {
+    return (
+        <>
+            Example Component
+        </>
+    );
+}
+
+export default ExampleComponent;
