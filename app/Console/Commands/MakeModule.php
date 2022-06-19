@@ -68,7 +68,19 @@ class MakeModule extends Command
 
     private function createMigration()
     {
+        // See https://laravel.com/docs/9.x/helpers#strings-method-list
+        $sTableNameAsNamespace = $this->argument("name");
+        $sTableName = Str::plural(Str::snake(class_basename($sTableNameAsNamespace)));
 
+        try {
+            $this->call("make:migration", [
+                "name" => "create_{$sTableName}_table",
+                "--create" => $sTableName,
+                "--path" => "App\\Modules\\". trim($sTableNameAsNamespace) . "\\Migrations"
+            ]);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+        }
     }
 
     private function createVueComponent()
