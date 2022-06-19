@@ -130,7 +130,7 @@ class MakeModule extends Command
                     "App\\Modules\\" . trim($this->argument('name')) . "\\Controllers",
                     $this->laravel->getNamespace(),
                     $sControllerName . 'Controller',
-                    "App\\Modules\\" . trim($this->argument('name')) . "\\Models\\{$sModelName}",
+                    "App\\Modules\\" . trim($this->argument('name')) . "\\Models\\$sModelName",
                     $sModelName,
                     lcfirst(($sModelName)),
                 ],
@@ -156,8 +156,50 @@ class MakeModule extends Command
         ]);
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     private function createApiController()
     {
+        $sControllerNameAsNamespace = $this->argument("name");
+        $sControllerName = Str::studly(class_basename($sControllerNameAsNamespace));
+
+        $sModelNameAsNamespace = $this->argument("name");
+        $sModelName = Str::singular(Str::studly(class_basename($sModelNameAsNamespace)));
+
+        $sControllerPath = $this->getControllerPath($sControllerNameAsNamespace);
+
+        if ($this->alreadyExists($sControllerPath)) {
+            $this->error('Controller already exists!');
+        } else {
+            $this->makeDirectory($sControllerPath);
+
+            $fileStub = $this->obFiles->get(base_path('resources/stubs/controller.model.api.stub'));
+
+            $fileStub = str_replace(
+                [
+                    'DummyNamespace',
+                    'DummyRootNamespace',
+                    'DummyClass',
+                    'DummyFullModelClass',
+                    'DummyModelClass',
+                    'DummyModelVariable',
+                ],
+                [
+                    "App\\Modules\\" . trim($this->argument('name')) . "\\Controllers\\Api",
+                    $this->laravel->getNamespace(),
+                    $sControllerName . 'Controller',
+                    "App\\Modules\\" . trim($this->argument('name')) . "\\Models\\$sModelName",
+                    $sModelName,
+                    lcfirst(($sModelName)),
+                ],
+                $fileStub
+            );
+
+            $this->obFiles->put($sControllerPath, $fileStub);
+            $this->info('Controller created successfully.');
+            //$this->updateModularConfig();
+        }
     }
 
     /**
