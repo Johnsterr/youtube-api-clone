@@ -202,6 +202,8 @@ class MakeModule extends Command
             $this->info("Controller created successfully.");
             //$this->updateModularConfig();
         }
+
+        $this->createApiRoutes($sControllerName, $sModelName);
     }
 
     /**
@@ -294,5 +296,43 @@ class MakeModule extends Command
     private function getRoutesPath(bool|array|string|null $sModuleName): string
     {
         return $this->laravel["path"] . "/Modules/" . str_replace("\\", "/", $sModuleName) . "/Routes/web.php";
+    }
+
+    /**
+     * @throws FileNotFoundException
+     */
+    private function createApiRoutes(string $sControllerName, string $sModelName)
+    {
+        $sRoutePath = $this->getApiRoutesPath($this->argument("name"));
+
+        if ($this->alreadyExists($sRoutePath)) {
+            $this->error("Routes already exists!");
+        } else {
+            $this->makeDirectory($sRoutePath);
+
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/routes.api.stub"));
+
+            $fileStub = str_replace(
+                [
+                    "DummyClass",
+                    "DummyRoutePrefix",
+                    "DummyModelVariable",
+                ],
+                [
+                    "Api\\" . $sControllerName . "Controller",
+                    Str::plural(Str::snake(lcfirst($sModelName), "-")),
+                    lcfirst($sModelName),
+                ],
+                $fileStub
+            );
+
+            $this->obFiles->put($sRoutePath, $fileStub);
+            $this->info("Routes created successfully.");
+        }
+    }
+
+    private function getApiRoutesPath(bool|array|string|null $sModuleName): string
+    {
+        return $this->laravel["path"] . "/Modules/" . str_replace("\\", "/", $sModuleName) . "/Routes/api.php";
     }
 }
