@@ -19,9 +19,9 @@ class MakeModule extends Command
         $this->obFiles = $obFilesystem;
     }
 
-    protected $signature = 'make:module {name} {--all} {--migration} {--vue} {--react} {--view} {--controller} {--model} {--api}';
+    protected $signature = "make:module {name} {--all} {--migration} {--vue} {--react} {--view} {--controller} {--model} {--api}";
 
-    protected $description = 'Command description';
+    protected $description = "Command description";
 
     /**
      * @throws FileNotFoundException
@@ -111,26 +111,26 @@ class MakeModule extends Command
         $sControllerPath = $this->getControllerPath($sControllerNameAsNamespace);
 
         if ($this->alreadyExists($sControllerPath)) {
-            $this->error('Controller already exists!');
+            $this->error("Controller already exists!");
         } else {
             $this->makeDirectory($sControllerPath);
 
-            $fileStub = $this->obFiles->get(base_path('resources/stubs/controller.model.api.stub'));
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/controller.model.api.stub"));
 
             $fileStub = str_replace(
                 [
-                    'DummyNamespace',
-                    'DummyRootNamespace',
-                    'DummyClass',
-                    'DummyFullModelClass',
-                    'DummyModelClass',
-                    'DummyModelVariable',
+                    "DummyNamespace",
+                    "DummyRootNamespace",
+                    "DummyClass",
+                    "DummyFullModelClass",
+                    "DummyModelClass",
+                    "DummyModelVariable",
                 ],
                 [
-                    "App\\Modules\\" . trim($this->argument('name')) . "\\Controllers",
+                    "App\\Modules\\" . trim($this->argument("name")) . "\\Controllers",
                     $this->laravel->getNamespace(),
                     $sControllerName . 'Controller',
-                    "App\\Modules\\" . trim($this->argument('name')) . "\\Models\\$sModelName",
+                    "App\\Modules\\" . trim($this->argument("name")) . "\\Models\\$sModelName",
                     $sModelName,
                     lcfirst(($sModelName)),
                 ],
@@ -138,9 +138,11 @@ class MakeModule extends Command
             );
 
             $this->obFiles->put($sControllerPath, $fileStub);
-            $this->info('Controller created successfully.');
+            $this->info("Controller created successfully.");
             //$this->updateModularConfig();
         }
+
+        $this->createRoutes($sControllerName, $sModelName);
     }
 
     private function createModel()
@@ -170,26 +172,26 @@ class MakeModule extends Command
         $sControllerPath = $this->getApiControllerPath($sControllerNameAsNamespace);
 
         if ($this->alreadyExists($sControllerPath)) {
-            $this->error('Controller already exists!');
+            $this->error("Controller already exists!");
         } else {
             $this->makeDirectory($sControllerPath);
 
-            $fileStub = $this->obFiles->get(base_path('resources/stubs/controller.model.api.stub'));
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/controller.model.api.stub"));
 
             $fileStub = str_replace(
                 [
-                    'DummyNamespace',
-                    'DummyRootNamespace',
-                    'DummyClass',
-                    'DummyFullModelClass',
-                    'DummyModelClass',
-                    'DummyModelVariable',
+                    "DummyNamespace",
+                    "DummyRootNamespace",
+                    "DummyClass",
+                    "DummyFullModelClass",
+                    "DummyModelClass",
+                    "DummyModelVariable",
                 ],
                 [
-                    "App\\Modules\\" . trim($this->argument('name')) . "\\Controllers\\Api",
+                    "App\\Modules\\" . trim($this->argument("name")) . "\\Controllers\\Api",
                     $this->laravel->getNamespace(),
-                    $sControllerName . 'Controller',
-                    "App\\Modules\\" . trim($this->argument('name')) . "\\Models\\$sModelName",
+                    $sControllerName . "Controller",
+                    "App\\Modules\\" . trim($this->argument("name")) . "\\Models\\$sModelName",
                     $sModelName,
                     lcfirst(($sModelName)),
                 ],
@@ -197,7 +199,7 @@ class MakeModule extends Command
             );
 
             $this->obFiles->put($sControllerPath, $fileStub);
-            $this->info('Controller created successfully.');
+            $this->info("Controller created successfully.");
             //$this->updateModularConfig();
         }
     }
@@ -254,5 +256,43 @@ class MakeModule extends Command
         if (!$this->obFiles->isDirectory(dirname($sPath))) {
             $this->obFiles->makeDirectory(dirname($sPath), 0755, true, true);
         }
+    }
+
+    /**
+     * @throws FileNotFoundException
+     */
+    private function createRoutes(string $sControllerName, string $sModelName)
+    {
+        $sRoutePath = $this->getRoutesPath($this->argument("name"));
+
+        if ($this->alreadyExists($sRoutePath)) {
+            $this->error("Routes already exists!");
+        } else {
+            $this->makeDirectory($sRoutePath);
+
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/routes.web.stub"));
+
+            $fileStub = str_replace(
+                [
+                    "DummyClass",
+                    "DummyRoutePrefix",
+                    "DummyModelVariable",
+                ],
+                [
+                    $sControllerName . "Controller",
+                    Str::plural(Str::snake(lcfirst($sModelName), "-")),
+                    lcfirst($sModelName),
+                ],
+                $fileStub
+            );
+
+            $this->obFiles->put($sRoutePath, $fileStub);
+            $this->info("Routes created successfully.");
+        }
+    }
+
+    private function getRoutesPath(bool|array|string|null $sModuleName): string
+    {
+        return $this->laravel["path"] . "/Modules/" . str_replace("\\", "/", $sModuleName) . "/Routes/web.php";
     }
 }
