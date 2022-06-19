@@ -2,28 +2,29 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeModule extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+    private Filesystem $obFiles;
+
+    public function __construct(Filesystem $obFilesystem)
+    {
+        parent::__construct();
+
+        $this->obFiles = $obFilesystem;
+    }
+
     protected $signature = 'make:module {name} {--all} {--migration} {--vue} {--react} {--view} {--controller} {--model} {--api}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Command description';
 
     /**
-     * Execute the console command.
-     *
+     * @throws FileNotFoundException
      */
     public function handle()
     {
@@ -76,31 +77,70 @@ class MakeModule extends Command
             $this->call("make:migration", [
                 "name" => "create_{$sTableName}_table",
                 "--create" => $sTableName,
-                "--path" => "App\\Modules\\". trim($sTableNameAsNamespace) . "\\Migrations"
+                "--path" => "App\\Modules\\" . trim($sTableNameAsNamespace) . "\\Migrations",
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
         }
     }
 
     private function createVueComponent()
     {
-
     }
 
     private function createReactComponent()
     {
-
     }
 
     private function createView()
     {
-
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     private function createController()
     {
+        // See https://laravel.com/docs/9.x/helpers#strings-method-list
+        $sControllerNameAsNamespace = $this->argument("name");
+        $sControllerName = Str::studly(class_basename($sControllerNameAsNamespace));
 
+        $sModelNameAsNamespace = $this->argument("name");
+        $sModelName = Str::singular(Str::studly(class_basename($sModelNameAsNamespace)));
+
+        $sControllerPath = $this->getControllerPath($sControllerNameAsNamespace);
+
+        if ($this->alreadyExists($sControllerPath)) {
+            $this->error('Controller already exists!');
+        } else {
+            $this->makeDirectory($sControllerPath);
+
+            $fileStub = $this->obFiles->get(base_path('resources/stubs/controller.model.api.stub'));
+
+            $fileStub = str_replace(
+                [
+                    'DummyNamespace',
+                    'DummyRootNamespace',
+                    'DummyClass',
+                    'DummyFullModelClass',
+                    'DummyModelClass',
+                    'DummyModelVariable',
+                ],
+                [
+                    "App\\Modules\\" . trim($this->argument('name')) . "\\Controllers",
+                    $this->laravel->getNamespace(),
+                    $sControllerName . 'Controller',
+                    "App\\Modules\\" . trim($this->argument('name')) . "\\Models\\{$sModelName}",
+                    $sModelName,
+                    lcfirst(($sModelName)),
+                ],
+                $fileStub
+            );
+
+            $this->obFiles->put($sControllerPath, $fileStub);
+            $this->info('Controller created successfully.');
+            //$this->updateModularConfig();
+        }
     }
 
     private function createModel()
@@ -112,12 +152,65 @@ class MakeModule extends Command
         $sModelName = Str::singular(Str::studly(class_basename($sModelNameAsNamespace))); // User
 
         $this->call("make:model", [
-            "name" => "App\\Modules\\". trim($sModelNameAsNamespace) . "\\Models\\" . $sModelName
+            "name" => "App\\Modules\\" . trim($sModelNameAsNamespace) . "\\Models\\" . $sModelName,
         ]);
     }
 
     private function createApiController()
     {
+    }
 
+    /**
+     * Возвращает абсолютный путь до файла создаваемого контроллера
+     * @param bool|array|string|null $sControllerNameAsNamespace
+     * @return string
+     */
+    private function getControllerPath(bool|array|string|null $sControllerNameAsNamespace): string
+    {
+        $sControllerClassBaseName = Str::studly(class_basename($sControllerNameAsNamespace));
+
+        return $this->laravel["path"] . "/Modules/" . str_replace(
+                "\\",
+                "/",
+                $sControllerNameAsNamespace
+            ) . "/Controllers/" . "{$sControllerClassBaseName}Controller.php";
+    }
+
+    /**
+     * Возвращает абсолютный путь до файла создаваемого Api контроллера
+     * @param bool|array|string|null $sControllerNameAsNamespace
+     * @return string
+     */
+    private function getApiControllerPath(bool|array|string|null $sControllerNameAsNamespace): string
+    {
+        $sControllerClassBaseName = Str::studly(class_basename($sControllerNameAsNamespace));
+
+        return $this->laravel["path"] . "/Modules/" . str_replace(
+                "\\",
+                "/",
+                $sControllerNameAsNamespace
+            ) . "/Controllers/Api/" . "{$sControllerClassBaseName}Controller.php";
+    }
+
+    /**
+     * Проверяет существует ли файл по переданному пути.
+     * @param string $sPath <p>Абсолютный путь до файла.</p>
+     * @return bool
+     */
+    protected function alreadyExists(string $sPath): bool
+    {
+        return $this->obFiles->exists($sPath);
+    }
+
+    /**
+     * Функция создает директорию, в которой будет храниться файл по переданному пути.
+     * @param string $sPath <p>Абсолютный путь до файла.</p>
+     * @return void
+     */
+    private function makeDirectory(string $sPath): void
+    {
+        if (!$this->obFiles->isDirectory(dirname($sPath))) {
+            $this->obFiles->makeDirectory(dirname($sPath), 0755, true, true);
+        }
     }
 }
