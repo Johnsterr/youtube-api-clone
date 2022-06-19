@@ -167,7 +167,7 @@ class MakeModule extends Command
         $sModelNameAsNamespace = $this->argument("name");
         $sModelName = Str::singular(Str::studly(class_basename($sModelNameAsNamespace)));
 
-        $sControllerPath = $this->getControllerPath($sControllerNameAsNamespace);
+        $sControllerPath = $this->getApiControllerPath($sControllerNameAsNamespace);
 
         if ($this->alreadyExists($sControllerPath)) {
             $this->error('Controller already exists!');
