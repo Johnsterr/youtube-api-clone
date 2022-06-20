@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
@@ -148,8 +149,37 @@ class MakeModule extends Command
         }
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     private function createView()
     {
+        $sViewNameAsNamespace = $this->argument("name");
+        $arPaths = $this->getViewPath($sViewNameAsNamespace);
+
+        foreach ($arPaths as $obPath) {
+            $sViewName = Str::studly(class_basename($sViewNameAsNamespace));
+
+            if ($this->alreadyExists($obPath)) {
+                $this->error("View already exists!");
+            } else {
+                $this->makeDirectory($obPath);
+
+                $fileStub = $this->obFiles->get(base_path("resources/stubs/view.stub"));
+
+                $fileStub = str_replace(
+                    [
+                        "",
+                    ],
+                    [
+                    ],
+                    $fileStub
+                );
+
+                $this->obFiles->put($obPath, $fileStub);
+                $this->info("View created successfully.");
+            }
+        }
     }
 
     /**
@@ -400,5 +430,24 @@ class MakeModule extends Command
     private function getReactComponentPath(bool|array|string|null $sModuleName): string
     {
         return base_path("resources/js/components/" . str_replace("\\", "/", $sModuleName) . ".jsx");
+    }
+
+    private function getViewPath(bool|array|string|null $sViewNameAsNamespace): Collection
+    {
+        $arFiles = collect([
+            "create",
+            "edit",
+            "index",
+            "show",
+        ]);
+
+        //str_replace("\\", "/", $sViewNameAsNamespace)
+        $arPaths = $arFiles->map(function ($path) use ($sViewNameAsNamespace) {
+            return base_path(
+                "resources/views/" . str_replace("\\", "/", $sViewNameAsNamespace) . "/" . $path . ".blade.php"
+            );
+        });
+
+        return $arPaths;
     }
 }
