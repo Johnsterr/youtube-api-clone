@@ -84,8 +84,36 @@ class MakeModule extends Command
         }
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     private function createVueComponent()
     {
+        $sVueComponentNameAsNamespace = $this->argument("name");
+        $sVueComponentPath = $this->getVueComponentPath($sVueComponentNameAsNamespace);
+
+        $sVueComponentName = Str::studly(class_basename($sVueComponentNameAsNamespace));
+
+        if ($this->alreadyExists($sVueComponentPath)) {
+            $this->error("Vue Component already exists!");
+        } else {
+            $this->makeDirectory($sVueComponentPath);
+
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/vue.component.stub"));
+
+            $fileStub = str_replace(
+                [
+                    "DummyClass",
+                ],
+                [
+                    $sVueComponentName,
+                ],
+                $fileStub
+            );
+
+            $this->obFiles->put($sVueComponentPath, $fileStub);
+            $this->info("Vue Component created successfully.");
+        }
     }
 
     private function createReactComponent()
@@ -334,5 +362,10 @@ class MakeModule extends Command
     private function getApiRoutesPath(bool|array|string|null $sModuleName): string
     {
         return $this->laravel["path"] . "/Modules/" . str_replace("\\", "/", $sModuleName) . "/Routes/api.php";
+    }
+
+    private function getVueComponentPath(bool|array|string|null $sModuleName): string
+    {
+        return base_path("resources/js/components/" . str_replace("\\", "/", $sModuleName) . ".vue");
     }
 }
