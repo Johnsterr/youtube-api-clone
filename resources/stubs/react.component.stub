@@ -1,11 +1,11 @@
 import React from "react";
 
-function ExampleComponent() {
+function DummyClass() {
     return (
         <>
-            Example Component
+            DummyClass
         </>
     );
 }
 
-export default ExampleComponent;
+export default DummyClass;

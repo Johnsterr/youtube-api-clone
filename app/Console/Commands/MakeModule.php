@@ -116,8 +116,36 @@ class MakeModule extends Command
         }
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     private function createReactComponent()
     {
+        $sReactComponentNameAsNamespace = $this->argument("name");
+        $sReactComponentPath = $this->getReactComponentPath($sReactComponentNameAsNamespace);
+
+        $sReactComponentName = Str::studly(class_basename($sReactComponentNameAsNamespace));
+
+        if ($this->alreadyExists($sReactComponentPath)) {
+            $this->error("React Component already exists!");
+        } else {
+            $this->makeDirectory($sReactComponentPath);
+
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/vue.component.stub"));
+
+            $fileStub = str_replace(
+                [
+                    "DummyClass",
+                ],
+                [
+                    $sReactComponentName,
+                ],
+                $fileStub
+            );
+
+            $this->obFiles->put($sReactComponentPath, $fileStub);
+            $this->info("React Component created successfully.");
+        }
     }
 
     private function createView()
@@ -367,5 +395,10 @@ class MakeModule extends Command
     private function getVueComponentPath(bool|array|string|null $sModuleName): string
     {
         return base_path("resources/js/components/" . str_replace("\\", "/", $sModuleName) . ".vue");
+    }
+
+    private function getReactComponentPath(bool|array|string|null $sModuleName): string
+    {
+        return base_path("resources/js/components/" . str_replace("\\", "/", $sModuleName) . ".jsx");
     }
 }
