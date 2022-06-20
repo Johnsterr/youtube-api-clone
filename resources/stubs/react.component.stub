@@ -1,0 +1,11 @@
+import React from "react";
+
+function DummyClass() {
+    return (
+        <>
+            DummyClass
+        </>
+    );
+}
+
+export default DummyClass;
