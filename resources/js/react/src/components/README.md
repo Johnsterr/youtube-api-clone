@@ -1,1 +1,1 @@
-Components directory
+React Components directory
