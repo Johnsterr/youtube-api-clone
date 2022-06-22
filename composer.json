@@ -8,9 +8,11 @@
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.4.4",
         "laravel/framework": "^9.11",
+        "laravel/passport": "^10.4",
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
-        "laravel/ui": "^3.4"
+        "laravel/ui": "^3.4",
+        "lavary/laravel-menu": "^1.8"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
