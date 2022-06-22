@@ -132,7 +132,7 @@ class MakeModule extends Command
         } else {
             $this->makeDirectory($sReactComponentPath);
 
-            $fileStub = $this->obFiles->get(base_path("resources/stubs/vue.component.stub"));
+            $fileStub = $this->obFiles->get(base_path("resources/stubs/react.component.stub"));
 
             $fileStub = str_replace(
                 [
