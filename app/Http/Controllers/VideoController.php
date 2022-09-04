@@ -7,12 +7,12 @@ use App\Models\Video;
 class VideoController extends Controller
 {
     public function index()
-{
-    return Video::get();
-}
+    {
+        return Video::with('channel')->get();
+    }
 
     public function show(Video $video)
-{
-    return $video;
-}
+    {
+        return $video->load('channel');
+    }
 }
