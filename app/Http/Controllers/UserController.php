@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Collection;
 
 class UserController extends Controller
 {
-    public function index(): Collection
+    public function index()
     {
-        return User::all();
+        return User::with('channel')->get();
+    }
+
+    public function show(User $user)
+    {
+        return $user->load('channel');
     }
 }

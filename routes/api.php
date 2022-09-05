@@ -17,4 +17,6 @@ Route::get('/videos', [VideoController::class, 'index']);
 Route::get('/videos/{video}', [VideoController::class, 'show']);
 
 Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{user}', [UserController::class, 'show']);
+
 Route::get('/teachers', [TeacherController::class, 'index']);
