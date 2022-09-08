@@ -17,7 +17,7 @@ class CategoryFactory extends Factory
     public function definition()
     {
         return [
-            'name' => ucfirst($this->faker->words(mt_rand(1, 2), true))
+            'name' => ucfirst($this->faker->words(mt_rand(1, 2), true)),
         ];
     }
 }

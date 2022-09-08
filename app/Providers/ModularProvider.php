@@ -25,25 +25,25 @@ class ModularProvider extends ServiceProvider
     public function boot()
     {
         //
-        $arModules = config("modular.modules");
+        $arModules = config('modular.modules');
 
-        $sPath = config("modular.path");
+        $sPath = config('modular.path');
 
         if ($arModules) {
             Route::group([
-                "prefix" => "",
+                'prefix' => '',
             ], function () use ($arModules, $sPath) {
                 foreach ($arModules as $sModuleName => $arSubModules) {
                     foreach ($arSubModules as $sSubmoduleName => $arSubmoduleValue) {
                         $sRelativePath = "/$sModuleName/$arSubmoduleValue";
 
-                        Route::middleware("web")
+                        Route::middleware('web')
                             ->group(function () use ($sModuleName, $arSubmoduleValue, $sRelativePath, $sPath) {
                                 $this->getWebRoutes($sModuleName, $arSubmoduleValue, $sRelativePath, $sPath);
                             });
 
-                        Route::prefix("api")
-                            ->middleware("api")
+                        Route::prefix('api')
+                            ->middleware('api')
                             ->group(function () use ($sModuleName, $arSubmoduleValue, $sRelativePath, $sPath) {
                                 $this->getApiRoutes($sModuleName, $arSubmoduleValue, $sRelativePath, $sPath);
                             });
@@ -52,18 +52,18 @@ class ModularProvider extends ServiceProvider
             });
         }
 
-        $this->app["view"]->addNamespace("Public", base_path() . "/resources/views/Public");
+        $this->app['view']->addNamespace('Public', base_path().'/resources/views/Public');
     }
 
     private function getWebRoutes(int|string $sModuleName, mixed $arSubmoduleValue, string $sRelativePath, mixed $sPath)
     {
-        $sRoutesPath = $sPath . $sRelativePath . "/Routes/web.php";
+        $sRoutesPath = $sPath.$sRelativePath.'/Routes/web.php';
 
         if (file_exists($sRoutesPath)) {
-            if ($sModuleName != config("modular.groupWithoutPrefix")) {
+            if ($sModuleName != config('modular.groupWithoutPrefix')) {
                 Route::group([
-                    "prefix" => strtolower($sModuleName),
-                    "middleware" => $this->getMiddleware($sModuleName),
+                    'prefix' => strtolower($sModuleName),
+                    'middleware' => $this->getMiddleware($sModuleName),
                 ],
                     function () use ($sModuleName, $arSubmoduleValue, $sRoutesPath) {
                         Route::namespace("App\Modules\\$sModuleName\\$arSubmoduleValue\Controllers")->group(
@@ -81,12 +81,12 @@ class ModularProvider extends ServiceProvider
 
     private function getApiRoutes(int|string $sModuleName, mixed $arSubmoduleValue, string $sRelativePath, mixed $sPath)
     {
-        $sRoutesPath = $sPath . $sRelativePath . "/Routes/api.php";
+        $sRoutesPath = $sPath.$sRelativePath.'/Routes/api.php';
 
         if (file_exists($sRoutesPath)) {
             Route::group([
-                "prefix" => strtolower($sModuleName),
-                "middleware" => $this->getMiddleware($sModuleName, "api"),
+                'prefix' => strtolower($sModuleName),
+                'middleware' => $this->getMiddleware($sModuleName, 'api'),
             ],
                 function () use ($sModuleName, $arSubmoduleValue, $sRoutesPath) {
                     Route::namespace("App\Modules\\$sModuleName\\$arSubmoduleValue\Controllers")->group($sRoutesPath);
@@ -95,11 +95,11 @@ class ModularProvider extends ServiceProvider
         }
     }
 
-    private function getMiddleware(int|string $sModuleName, $sType = "web"): array
+    private function getMiddleware(int|string $sModuleName, $sType = 'web'): array
     {
         $arMiddleware = [];
 
-        $arConfig = config("modular.groupMiddleware");
+        $arConfig = config('modular.groupMiddleware');
 
         if (isset($arConfig[$sModuleName])) {
             if (array_key_exists($sType, $arConfig[$sModuleName])) {
