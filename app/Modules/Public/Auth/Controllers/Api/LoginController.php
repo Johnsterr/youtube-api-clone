@@ -10,6 +10,6 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         var_dump($request->all());
-        exit("Api Login Exit");
+        exit('Api Login Exit');
     }
 }
