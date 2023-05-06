@@ -10,6 +10,8 @@ class Video extends Model
 {
     use HasFactory;
 
+    protected static $relationships = ['channel', 'playlists', 'categories'];
+
     public function channel()
     {
         return $this->belongsTo(Channel::class);
@@ -23,13 +25,6 @@ class Video extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class);
-    }
-
-    public function scopeWithRelationships($query, array $with)
-    {
-        $relationships = ['channel', 'playlists', 'categories'];
-
-        return $query->with(array_intersect($with, $relationships));
     }
 
     public function scopeFromPeriod($query, ?Period $period)
