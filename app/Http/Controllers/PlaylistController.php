@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Channel;
+use App\Models\Playlist;
 
-class ChannelController extends Controller
+class PlaylistController extends Controller
 {
     public function index()
     {
-        return Channel::withRelationships(request('with'))
+        return Playlist::withRelationships(request('with'))
             ->search(request('query'))
             ->orderBy(request('sort', 'name'), request('order', 'asc'))
             ->simplePaginate(request('limit'));
     }
 
-    public function show(Channel $channel)
+    public function show(Playlist $playlist)
     {
-        return $channel->loadRelationships(request('with'));
+        return $playlist->loadRelationships(request('with'));
     }
 }

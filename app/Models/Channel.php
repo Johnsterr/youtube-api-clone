@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
 {
     use HasFactory;
+
+    protected static $relationships = ['playlists', 'videos', 'user'];
+
+    public function playlists()
+    {
+        return $this->hasMany(Playlist::class);
+    }
 
     public function videos()
     {

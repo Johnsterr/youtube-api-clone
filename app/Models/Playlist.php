@@ -4,11 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Category extends Model
+class Playlist extends Model
 {
     use HasFactory;
 
-    protected static $relationships = ['videos'];
+    protected static $relationships = ['channel', 'videos'];
+
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class);
+    }
 
     public function videos()
     {

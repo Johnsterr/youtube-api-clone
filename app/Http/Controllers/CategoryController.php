@@ -8,11 +8,14 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::with('videos')->get();
+        return Category::withRelationships(request('with'))
+            ->search(request('query'))
+            ->orderBy(request('sort', 'name'), request('order', 'asc'))
+            ->simplePaginate(request('limit'));
     }
 
     public function show(Category $category)
     {
-        return $category->load('videos');
+        return $category->loadRelationships(request('with'));
     }
 }

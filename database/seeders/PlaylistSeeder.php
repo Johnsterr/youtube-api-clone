@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
+use App\Models\Playlist;
 use Illuminate\Database\Seeder;
 
-class CategorySeeder extends Seeder
+class PlaylistSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,6 +14,6 @@ class CategorySeeder extends Seeder
      */
     public function run()
     {
-        Category::factory(10)->create();
+        Playlist::factory(10)->create();
     }
 }
