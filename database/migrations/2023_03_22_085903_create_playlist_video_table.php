@@ -19,7 +19,6 @@ return new class extends Migration
             $table->primary(['playlist_id', 'video_id']);
             $table->foreignIdFor(Playlist::class)->constrained();
             $table->foreignIdFor(Video::class)->constrained();
-            $table->foreignIdFor(Channel::class)->constrained();
         });
     }
 
