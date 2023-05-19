@@ -15,10 +15,8 @@ class CommentSeeder extends Seeder
      */
     public function run()
     {
-        Video::take(3)->get()
-            ->flatMap
-            ->createRandomComments()
-            ->each
-            ->associateParentComment();
+        Video::take(3)->get()->each(
+            fn (Video $video) => Comment::factory(10)->create(['video_id' => $video->id])
+        );
     }
 }
