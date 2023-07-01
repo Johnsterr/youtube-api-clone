@@ -14,11 +14,16 @@ class User extends Authenticatable
     // Пример, вместо вызова метода "with" в контроллере
     //protected $with = ['channel'];
 
-    protected static $relationships = ['channel'];
+    protected static $relationships = ['channel', 'comments'];
 
     public function channel()
     {
         return $this->hasOne(Channel::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
     public function scopeSearch($query, ?string $text)
